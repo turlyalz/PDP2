@@ -7,6 +7,8 @@
 #include <iostream>
 #include <chrono>
 
+#include <omp.h>
+
 using namespace std;
 
 Solver::Solver()
@@ -56,7 +58,7 @@ void Solver::run(const Problem* problem)
     {
         return;
     }
-    auto start = chrono::high_resolution_clock::now();
+    //auto start = chrono::high_resolution_clock::now();
 
     vector<uint> state(m_problem->a);
 
@@ -73,10 +75,18 @@ void Solver::run(const Problem* problem)
     cout << "Number of combinations: " << comb << endl;
 
     uint prevIter = 0;
-    for (uint c = 1; c < comb; ++c)
+    uint c = 1;
+
+    #pragma omp parallel for shared(comb) firstprivate(state, prevIter) private(c)
+    for (c = 1; c < comb; ++c)
     {
         uint i = m_problem->a;
         uint lastNode = m_problem->n;
+
+        if (state[0] >= m_problem->n - m_problem->a)
+        {
+            continue;
+        }
 
         while (state[--i] == --lastNode);
         ++state[i];
@@ -105,20 +115,18 @@ void Solver::run(const Problem* problem)
         uint price = calculatePrice(state);
         if (price < m_solution->price)
         {
-            m_solution->price = price;
-            m_solution->nodes = state;
-        }
-
-        if (state[0] >= m_problem->n - m_problem->a)
-        {
-            break;
+            #pragma omp critical
+            {
+                m_solution->price = price;
+                m_solution->nodes = state;
+            }
         }
     }
 
     cout << *m_solution;
 
-    auto stop = chrono::high_resolution_clock::now();
+    /*auto stop = chrono::high_resolution_clock::now();
     using fpSeconds = chrono::duration<float, chrono::seconds::period>;
     auto elapsedTime = fpSeconds(stop - start).count();
-    cout << "Elapsed time: " << elapsedTime << " seconds" << endl;
+    cout << "Elapsed time: " << elapsedTime << " seconds" << endl;*/
 }
