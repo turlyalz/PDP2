@@ -22,37 +22,48 @@ InputManager::~InputManager()
 
 void InputManager::printHelp() const
 {
-    cout << "Run program: ./bw.out -f FILE_NAME -a NATURAL_NUMBER" << endl;
+    cout << "Run program: ./bw.out -f FILE_NAME -a NATURAL_NUMBER -t NUMBER_OF_THREADS" << endl;
 }
 
 bool InputManager::parse(int argc, char* argv[])
 {
-	if (argc == 5)
+	if (argc == ARGUMENT_END)
 	{
 		m_problem = new Problem();
 
         string fileName;
-		if (strcmp("-f", argv[1]) == 0)
+		if (strcmp("-f", argv[ARGUMENT_F_TAG]) == 0)
 		{
-			fileName = argv[2];
+			fileName = argv[ARGUMENT_FILE_NAME];
 		}
 		else
 		{
-            cerr << "Argument " << argv[1] << " unknown" << endl;
+            cerr << "Argument " << argv[ARGUMENT_F_TAG] << " unknown" << endl;
             printHelp();
 			return false;
 		}
 
-		if (strcmp("-a", argv[3]) == 0)
+		if (strcmp("-a", argv[ARGUMENT_A_TAG]) == 0)
 		{
-            m_problem->a = stoi(argv[4]);
+            m_problem->a = stoi(argv[ARGUMENT_A]);
 		}
 		else
 		{
-            cerr << "Argument " << argv[3] << " unknown" << endl;
+            cerr << "Argument " << argv[ARGUMENT_A_TAG] << " unknown" << endl;
             printHelp();
 			return false;
 		}
+
+        if (strcmp("-t", argv[ARGUMENT_T_TAG]) == 0)
+        {
+            m_problem->threads = stoi(argv[ARGUMENT_T]);
+        }
+        else
+        {
+            cerr << "Argument " << argv[ARGUMENT_T_TAG] << " unknown" << endl;
+            printHelp();
+            return false;
+        }
 
         ifstream in(fileName);
 		if (in.is_open())
@@ -63,7 +74,7 @@ bool InputManager::parse(int argc, char* argv[])
             istringstream iss(data);
 			iss >> m_problem->n;
 
-			if (m_problem->a < 5 || m_problem->a >(m_problem->n / 2))
+			if (m_problem->a < 5 || m_problem->a > (m_problem->n / 2))
 			{
                 cerr << "a must be in range [5, n/2]" << endl;
 				return false;
@@ -96,7 +107,7 @@ bool InputManager::parse(int argc, char* argv[])
 	}
 	else
 	{
-        cerr << "Number of arguments must be 4" << endl;
+        cerr << "Number of arguments must be " << ARGUMENT_END - 2 << endl;
         printHelp();
 	}
 	return false;

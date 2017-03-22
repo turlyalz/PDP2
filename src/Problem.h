@@ -9,6 +9,7 @@ struct Problem
 {
     uint a;
     uint n;
+    uint threads;
     std::vector<std::vector<bool>> graph;
 };
 

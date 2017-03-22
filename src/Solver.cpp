@@ -58,7 +58,7 @@ void Solver::run(const Problem* problem)
     {
         return;
     }
-    //auto start = chrono::high_resolution_clock::now();
+    auto start = chrono::high_resolution_clock::now();
 
     vector<uint> state(m_problem->a);
 
@@ -77,7 +77,7 @@ void Solver::run(const Problem* problem)
     uint prevIter = 0;
     uint c = 1;
 
-    #pragma omp parallel for shared(comb) firstprivate(state, prevIter) private(c)
+    #pragma omp parallel for shared(comb) firstprivate(state, prevIter) private(c) num_threads(m_problem->threads)
     for (c = 1; c < comb; ++c)
     {
         uint i = m_problem->a;
@@ -125,8 +125,8 @@ void Solver::run(const Problem* problem)
 
     cout << *m_solution;
 
-    /*auto stop = chrono::high_resolution_clock::now();
+    auto stop = chrono::high_resolution_clock::now();
     using fpSeconds = chrono::duration<float, chrono::seconds::period>;
     auto elapsedTime = fpSeconds(stop - start).count();
-    cout << "Elapsed time: " << elapsedTime << " seconds" << endl;*/
+    cout << "Elapsed time: " << elapsedTime << " seconds" << endl;
 }
