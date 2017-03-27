@@ -21,17 +21,20 @@ Solver::~Solver()
     delete m_solution;
 }
 
-uint Solver::combinations(uint n, uint k) const
+ull Solver::combinations(uint n, uint k) const
 {
-    vector<bool> bitmask(k, true);
-    bitmask.resize(n, false);
+    if (k > n)
+    {
+        return 0;
+    }
+    ull r = 1;
 
-    int counter = 0;
-    do {
-        ++counter;
-    } while (prev_permutation(bitmask.begin(), bitmask.end()));
-
-    return counter;
+    for (ull d = 1; d <= k; ++d)
+    {
+        r *= n--;
+        r /= d;
+    }
+    return r;
 }
 
 uint Solver::calculatePrice(const vector<uint>& state)
@@ -69,24 +72,24 @@ void Solver::run(const Problem* problem)
     }
 
     m_solution->price = calculatePrice(state);
-    uint comb = combinations(m_problem->n, m_problem->a);
+    ull comb = combinations(m_problem->n, m_problem->a);
 
     cout << "Start price: " << m_solution->price << endl;
     cout << "Number of combinations: " << comb << endl;
 
     uint prevIter = 0;
-    uint c = 1;
+    ull c = 1;
 
     #pragma omp parallel for shared(comb) firstprivate(state, prevIter) private(c) num_threads(m_problem->threads)
     for (c = 1; c < comb; ++c)
     {
-        uint i = m_problem->a;
-        uint lastNode = m_problem->n;
-
         if (state[0] >= m_problem->n - m_problem->a)
         {
             continue;
         }
+        
+        uint i = m_problem->a;
+        uint lastNode = m_problem->n;
 
         while (state[--i] == --lastNode);
         ++state[i];

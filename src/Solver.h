@@ -4,6 +4,8 @@
 #include "Problem.h"
 #include "Solution.h"
 
+typedef unsigned long long ull;
+
 class Solver
 {
 public:
@@ -13,7 +15,7 @@ public:
     void run(const Problem* problem);
 
 private:
-    uint combinations(uint n, uint k) const;
+    ull combinations(uint n, uint k) const;
     uint calculatePrice(const std::vector<uint>& state);
 
     const Problem* m_problem;
